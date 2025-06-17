@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WLV Honours Grade Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      color: #fff;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 1s;
+    }
+    .container {
+      max-width: 420px;
+      width: 100%;
+      background: rgba(30, 30, 30, 0.95);
+      padding: 32px 28px 24px 28px;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.08);
+      animation: fadeIn 1.2s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(40px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+      font-size: 2rem;
+      background: linear-gradient(90deg, #4CAF50 40%, #00c6ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    form p {
+      margin-bottom: 10px;
+      font-size: 1.08rem;
+      color: #b2ffb2;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      margin: 7px 0;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #232526;
+      color: #fff;
+      font-size: 1.05rem;
+      outline: none;
+      transition: border 0.3s, box-shadow 0.3s;
+      box-shadow: 0 2px 8px rgba(76,175,80,0.05);
+    }
+    input[type="number"]:focus {
+      border: 1.5px solid #4CAF50;
+      box-shadow: 0 0 8px #4CAF5055;
+    }
+    button {
+      background: linear-gradient(90deg, #4CAF50 60%, #00c6ff 100%);
+      border: none;
+      color: white;
+      padding: 13px 0;
+      margin-top: 16px;
+      width: 100%;
+      border-radius: 8px;
+      font-size: 1.15rem;
+      font-weight: bold;
+      cursor: pointer;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 16px 0 rgba(76,175,80,0.12);
+      transition: background 0.3s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #00c6ff 0%, #4CAF50 100%);
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 24px 0 rgba(0,198,255,0.18);
+    }
+    .result {
+      margin-top: 28px;
+      padding: 20px 18px;
+      background: linear-gradient(120deg, #232526 60%, #4CAF50 100%);
+      border-radius: 10px;
+      font-size: 1.1rem;
+      min-height: 60px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s cubic-bezier(.68,-0.55,.27,1.55), transform 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+      box-shadow: 0 2px 12px 0 rgba(76,175,80,0.09);
+    }
+    .result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .result strong {
+      color: #fff176;
+      font-weight: 700;
+    }
+    .badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: bold;
+      margin-top: 10px;
+      background: linear-gradient(90deg, #00c6ff 0%, #4CAF50 100%);
+      color: #232526;
+      letter-spacing: 0.5px;
+      animation: popIn 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.7); opacity: 0;}
+      80% { transform: scale(1.1);}
+      100% { transform: scale(1); opacity: 1;}
+    }
+    @media (max-width: 600px) {
+      .container { padding: 18px 6px 14px 6px; }
+      h2 { font-size: 1.3rem; }
+      .result { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Wolverhampton Honours Grade Tracker</h2>
+    <form id="gradeForm" autocomplete="off">
+      <p>Enter your Level 5 module marks (Year 2):</p>
+      <input type="number" min="0" max="100" placeholder="Module 1" required>
+      <input type="number" min="0" max="100" placeholder="Module 2" required>
+      <input type="number" min="0" max="100" placeholder="Module 3" required>
+      <input type="number" min="0" max="100" placeholder="Module 4" required>
+      <input type="number" min="0" max="100" placeholder="Module 5" required>
+      <input type="number" min="0" max="100" placeholder="Module 6" required>
+      <button type="submit">Calculate</button>
+    </form>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("gradeForm");
+    const resultDiv = document.getElementById("result");
+
+    function getBadge(classification) {
+      let color = '';
+      switch (classification) {
+        case "First Class Honours":
+          color = "background:linear-gradient(90deg,#fff176 60%,#ffd700 100%);color:#232526;";
+          break;
+        case "Upper Second (2:1)":
+          color = "background:linear-gradient(90deg,#00c6ff 60%,#4CAF50 100%);color:#232526;";
+          break;
+        case "Lower Second (2:2)":
+          color = "background:linear-gradient(90deg,#ffb347 60%,#ffcc80 100%);color:#232526;";
+          break;
+        case "Third Class":
+          color = "background:linear-gradient(90deg,#ff7675 60%,#fdcb6e 100%);color:#232526;";
+          break;
+        default:
+          color = "background:linear-gradient(90deg,#b2bec3 60%,#636e72 100%);color:#232526;";
+      }
+      return `<span class="badge" style="${color}">${classification}</span>`;
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const inputs = form.querySelectorAll("input[type='number']");
+      let sum = 0;
+      let valid = true;
+      inputs.forEach(input => {
+        if (input.value === "" || isNaN(input.value) || input.value < 0 || input.value > 100) {
+          input.style.border = "2px solid #ff7675";
+          valid = false;
+        } else {
+          input.style.border = "";
+          sum += Number(input.value);
+        }
+      });
+      if (!valid) {
+        resultDiv.innerHTML = `<span style="color:#ff7675;font-weight:bold;">Please enter valid marks (0-100) for all modules.</span>`;
+        resultDiv.classList.add("show");
+        return;
+      }
+
+      const level5Avg = sum / inputs.length;
+      const needed = (70 - 0.33 * level5Avg) / 0.67;
+
+      let likelyClass = "";
+      if (level5Avg >= 70) likelyClass = "First Class Honours";
+      else if (level5Avg >= 60) likelyClass = "Upper Second (2:1)";
+      else if (level5Avg >= 50) likelyClass = "Lower Second (2:2)";
+      else if (level5Avg >= 40) likelyClass = "Third Class";
+      else likelyClass = "Fail";
+
+      const resultText = `
+        <strong>Level 5 Average:</strong> ${level5Avg.toFixed(2)}%<br>
+        <strong>To get First Class Honours (70% overall), you need:</strong> <span style="color:#00e676;font-weight:bold;">${needed.toFixed(2)}%</span> in Level 6<br>
+        <strong>Based on current form, your likely degree class is:</strong><br>
+        ${getBadge(likelyClass)}
+      `;
+
+      resultDiv.innerHTML = resultText;
+      resultDiv.classList.remove("show");
+      setTimeout(() => resultDiv.classList.add("show"), 50);
+    });
+  </script>
+</body>
+</html>
